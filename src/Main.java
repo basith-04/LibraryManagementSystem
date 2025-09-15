@@ -34,6 +34,7 @@ class User {
     String userName;
     String contact;
     List<Book> borrowedBooks = new ArrayList<>();
+    static final int MAX_BORROW_LIMIT = 5;
 
     User(int id, String name, String contact) {
         this.userId = id;
@@ -42,6 +43,10 @@ class User {
     }
 
     void borrowBook(Book book) {
+        if (borrowedBooks.size() >= MAX_BORROW_LIMIT) {
+            System.out.println("Borrow limit reached! Max " + MAX_BORROW_LIMIT + " books allowed.");
+            return;
+        }
         if (book.status.equals("available")) {
             borrowedBooks.add(book);
             book.status = "borrowed";
@@ -62,8 +67,12 @@ class User {
 
     void displayBorrowedBooks() {
         System.out.println(userName + " borrowed books:");
-        for (Book b : borrowedBooks) {
-            System.out.println(" - " + b.title);
+        if (borrowedBooks.isEmpty()) {
+            System.out.println(" - None");
+        } else {
+            for (Book b : borrowedBooks) {
+                System.out.println(" - " + b.title);
+            }
         }
     }
 }
@@ -90,6 +99,24 @@ class Librarian extends User {
             }
         }
         System.out.println("Book not found!");
+    }
+
+    void updateBook(String ISBN, Library lib, Scanner sc) {
+        Book b = lib.searchBookByISBN(ISBN);
+        if (b != null) {
+            System.out.print("Enter new Title: ");
+            String t = sc.nextLine();
+            System.out.print("Enter new Author: ");
+            String a = sc.nextLine();
+            System.out.print("Enter new ISBN: ");
+            String i = sc.nextLine();
+            System.out.print("Enter new Genre: ");
+            String g = sc.nextLine();
+            b.updateBook(t, a, i, g);
+            System.out.println("Book updated successfully!");
+        } else {
+            System.out.println("Book not found!");
+        }
     }
 
     void registerUser(User u, Library lib) {
@@ -197,12 +224,7 @@ public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         Library library = new Library();
-
-
         Librarian librarian = new Librarian(1, "Admin", "9999999999");
-
-
-
 
         boolean running = true;
         while (running) {
@@ -220,8 +242,9 @@ public class Main {
                     System.out.println("\n--- Book Management ---");
                     System.out.println("1. Add Book");
                     System.out.println("2. Remove Book");
-                    System.out.println("3. List Books");
-                    System.out.println("4. Search Book");
+                    System.out.println("3. Update Book");
+                    System.out.println("4. List Books");
+                    System.out.println("5. Search Book");
                     System.out.print("Enter choice: ");
                     int bChoice = sc.nextInt();
                     sc.nextLine();
@@ -246,12 +269,22 @@ public class Main {
                             break;
 
                         case 3:
-                            for (Book b : library.books) {
-                                b.display();
-                            }
+                            System.out.print("Enter ISBN to update: ");
+                            isbn = sc.nextLine();
+                            librarian.updateBook(isbn, library, sc);
                             break;
 
                         case 4:
+                            if (library.books.isEmpty()) {
+                                System.out.println("No books in the library.");
+                            } else {
+                                for (Book b : library.books) {
+                                    b.display();
+                                }
+                            }
+                            break;
+
+                        case 5:
                             System.out.println("Search by: 1) Title 2) Author 3) ISBN 4) Genre");
                             int opt = sc.nextInt();
                             sc.nextLine();
@@ -333,8 +366,12 @@ public class Main {
                             break;
 
                         case 3:
-                            for (User u : library.users) {
-                                System.out.println("ID: " + u.userId + " | Name: " + u.userName + " | Contact: " + u.contact);
+                            if (library.users.isEmpty()) {
+                                System.out.println("No users registered.");
+                            } else {
+                                for (User u : library.users) {
+                                    System.out.println("ID: " + u.userId + " | Name: " + u.userName + " | Contact: " + u.contact);
+                                }
                             }
                             break;
                     }
@@ -397,8 +434,12 @@ public class Main {
                             break;
 
                         case 3:
-                            for (BorrowTransaction t : library.transactions) {
-                                t.displayTransaction();
+                            if (library.transactions.isEmpty()) {
+                                System.out.println("No transactions found.");
+                            } else {
+                                for (BorrowTransaction t : library.transactions) {
+                                    t.displayTransaction();
+                                }
                             }
                             break;
                     }
