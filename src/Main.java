@@ -104,20 +104,55 @@ class Librarian extends User {
     void updateBook(String ISBN, Library lib, Scanner sc) {
         Book b = lib.searchBookByISBN(ISBN);
         if (b != null) {
-            System.out.print("Enter new Title: ");
-            String t = sc.nextLine();
-            System.out.print("Enter new Author: ");
-            String a = sc.nextLine();
-            System.out.print("Enter new ISBN: ");
-            String i = sc.nextLine();
-            System.out.print("Enter new Genre: ");
-            String g = sc.nextLine();
-            b.updateBook(t, a, i, g);
-            System.out.println("Book updated successfully!");
+            boolean updating = true;
+            String newTitle = b.title;
+            String newAuthor = b.author;
+            String newISBN = b.ISBN;
+            String newGenre = b.genre;
+
+            while (updating) {
+                System.out.println("\n--- Update Book Menu ---");
+                System.out.println("1. Update Title");
+                System.out.println("2. Update Author");
+                System.out.println("3. Update ISBN");
+                System.out.println("4. Update Genre");
+                System.out.println("5. Save & Exit");
+                System.out.print("Enter your choice: ");
+
+                int choice = sc.nextInt();
+                sc.nextLine(); // consume newline
+
+                switch (choice) {
+                    case 1:
+                        System.out.print("Enter new Title: ");
+                        newTitle = sc.nextLine();
+                        break;
+                    case 2:
+                        System.out.print("Enter new Author: ");
+                        newAuthor = sc.nextLine();
+                        break;
+                    case 3:
+                        System.out.print("Enter new ISBN: ");
+                        newISBN = sc.nextLine();
+                        break;
+                    case 4:
+                        System.out.print("Enter new Genre: ");
+                        newGenre = sc.nextLine();
+                        break;
+                    case 5:
+                        b.updateBook(newTitle, newAuthor, newISBN, newGenre);
+                        System.out.println("Book updated successfully!");
+                        updating = false;
+                        break;
+                    default:
+                        System.out.println("Invalid choice! Try again.");
+                }
+            }
         } else {
             System.out.println("Book not found!");
         }
     }
+
 
     void registerUser(User u, Library lib) {
         lib.users.add(u);
